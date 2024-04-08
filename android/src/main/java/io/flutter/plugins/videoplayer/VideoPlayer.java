@@ -63,6 +63,12 @@ final class VideoPlayer {
   private final VideoPlayerOptions options;
 
   private DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory();
+  
+  private String aesMode;
+  
+  private byte[] aesIV;
+
+
 
   VideoPlayer(
       Context context,
@@ -71,11 +77,14 @@ final class VideoPlayer {
       String dataSource,
       String formatHint,
       @NonNull Map<String, String> httpHeaders,
+      String aesMode,
+      byte[] aesIV,
       VideoPlayerOptions options) {
     this.eventChannel = eventChannel;
     this.textureEntry = textureEntry;
     this.options = options;
-
+    this.aesMode = aesMode;
+    this.aesIV = aesIV;
     ExoPlayer exoPlayer = new ExoPlayer.Builder(context).build();
     Uri uri = Uri.parse(dataSource);
 

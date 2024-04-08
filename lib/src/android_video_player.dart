@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:video_player_platform_interface/video_player_platform_interface.dart';
+import 'package:video_player_android/src/video_player_platform_interface/video_player_platform_interface.dart';
 
 import 'messages.g.dart';
 
@@ -57,6 +57,8 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
       uri: uri,
       httpHeaders: httpHeaders,
       formatHint: formatHint,
+      aesMode: dataSource.aesMode,
+      aesIV: dataSource.aesIV
     );
 
     final TextureMessage response = await _api.create(message);

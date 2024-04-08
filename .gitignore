@@ -1,0 +1,48 @@
+# Directorios Gradle
+.gradle/
+build/
+
+# archivos de configuración de Gradle
+!gradle-wrapper.jar
+
+# archivos IDEA
+.idea/
+
+# archivos de compilación
+*.class
+*.jar
+
+# archivos de construcción
+*.war
+*.ear
+*.aar
+*.apk
+*.dex
+
+# archivos de logs
+*.log
+
+# Directorios de dependencias generados por pub
+.packages/
+.pub/
+
+# Directorio de salida de construcción
+/build/
+
+# Dependencias generadas por Flutter
+/bin/
+/cache/
+/packages/
+
+# Dependencias de la IDE
+.idea/
+.vscode/
+
+# Archivos de configuración locales
+*.iml
+*.lock
+*.log
+*.pid
+.dart_tool
+local.properties
+.flutter-plugins*

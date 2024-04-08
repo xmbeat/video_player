@@ -49,6 +49,8 @@ class CreateMessage {
   String? packageName;
   String? formatHint;
   Map<String?, String?> httpHeaders;
+  String? aesMode;
+  Uint8List? aesIV;
 }
 
 class MixWithOthersMessage {

@@ -142,6 +142,8 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
               "asset:///" + assetLookupKey,
               null,
               new HashMap<>(),
+              arg.getAesMode(),
+              arg.getAesIV(),
               options);
     } else {
       Map<String, String> httpHeaders = arg.getHttpHeaders();
@@ -153,6 +155,8 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
               arg.getUri(),
               arg.getFormatHint(),
               httpHeaders,
+              arg.getAesMode(),
+              arg.getAesIV(),
               options);
     }
     videoPlayers.put(handle.id(), player);
