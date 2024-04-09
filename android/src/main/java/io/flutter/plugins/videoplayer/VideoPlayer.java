@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.view.TextureRegistry;
+import io.flutter.plugins.videoplayer.Messages.AesOptions;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,12 +63,10 @@ final class VideoPlayer {
 
   private final VideoPlayerOptions options;
 
+  private AesOptions aesOptions;
+
   private DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory();
   
-  private String aesMode;
-  
-  private byte[] aesIV;
-
 
 
   VideoPlayer(
@@ -77,22 +76,28 @@ final class VideoPlayer {
       String dataSource,
       String formatHint,
       @NonNull Map<String, String> httpHeaders,
-      String aesMode,
-      byte[] aesIV,
+      AesOptions aesOptions,
       VideoPlayerOptions options) {
     this.eventChannel = eventChannel;
     this.textureEntry = textureEntry;
     this.options = options;
-    this.aesMode = aesMode;
-    this.aesIV = aesIV;
+    this.aesOptions = aesOptions;
     ExoPlayer exoPlayer = new ExoPlayer.Builder(context).build();
     Uri uri = Uri.parse(dataSource);
-
-    buildHttpDataSourceFactory(httpHeaders);
-    DataSource.Factory dataSourceFactory =
-        new DefaultDataSource.Factory(context, httpDataSourceFactory);
-
-    MediaSource mediaSource = buildMediaSource(uri, dataSourceFactory, formatHint);
+    MediaSource mediaSource = null;
+    if (aesOptions!=null){
+      DataSource.Factory encryptedDataSourceFactory = new EncryptedDataSourceFactory(aesOptions.getKey(), aesOptions.getIv());
+      mediaSource = new ProgressiveMediaSource.Factory(encryptedDataSourceFactory).createMediaSource(
+        MediaItem.fromUri(dataSource)
+      );
+    }
+    else{
+      buildHttpDataSourceFactory(httpHeaders);
+      DataSource.Factory dataSourceFactory =
+          new DefaultDataSource.Factory(context, httpDataSourceFactory);
+      
+      mediaSource = buildMediaSource(uri, dataSourceFactory, formatHint);
+    }
 
     exoPlayer.setMediaSource(mediaSource);
     exoPlayer.prepare();
@@ -108,12 +113,13 @@ final class VideoPlayer {
       TextureRegistry.SurfaceTextureEntry textureEntry,
       VideoPlayerOptions options,
       QueuingEventSink eventSink,
-      DefaultHttpDataSource.Factory httpDataSourceFactory) {
+      DefaultHttpDataSource.Factory httpDataSourceFactory
+    ) {
     this.eventChannel = eventChannel;
     this.textureEntry = textureEntry;
     this.options = options;
     this.httpDataSourceFactory = httpDataSourceFactory;
-
+    this.aesOptions = aesOptions;
     setUpVideoPlayer(exoPlayer, eventSink);
   }
 

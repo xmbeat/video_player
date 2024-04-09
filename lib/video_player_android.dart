@@ -4,3 +4,4 @@
 
 export 'src/android_video_player.dart';
 export 'src/video_player_platform_interface/video_player_platform_interface.dart';
+export 'src/messages.g.dart' show AesOptions;

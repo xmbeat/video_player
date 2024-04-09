@@ -21,6 +21,7 @@ import io.flutter.plugins.videoplayer.Messages.PlaybackSpeedMessage;
 import io.flutter.plugins.videoplayer.Messages.PositionMessage;
 import io.flutter.plugins.videoplayer.Messages.TextureMessage;
 import io.flutter.plugins.videoplayer.Messages.VolumeMessage;
+import io.flutter.plugins.videoplayer.Messages.AesOptions;
 import io.flutter.view.TextureRegistry;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -142,8 +143,7 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
               "asset:///" + assetLookupKey,
               null,
               new HashMap<>(),
-              arg.getAesMode(),
-              arg.getAesIV(),
+              arg.getAesOptions(),
               options);
     } else {
       Map<String, String> httpHeaders = arg.getHttpHeaders();
@@ -155,8 +155,7 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
               arg.getUri(),
               arg.getFormatHint(),
               httpHeaders,
-              arg.getAesMode(),
-              arg.getAesIV(),
+              arg.getAesOptions(),
               options);
     }
     videoPlayers.put(handle.id(), player);

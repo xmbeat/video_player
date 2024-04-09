@@ -169,11 +169,12 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   /// package and null otherwise.
   MiniController.asset(this.dataSource, {this.package})
       : dataSourceType = DataSourceType.asset,
+        aesOptions = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from
   /// the network.
-  MiniController.network(this.dataSource)
+  MiniController.network(this.dataSource, {this.aesOptions = null})
       : dataSourceType = DataSourceType.network,
         package = null,
         super(const VideoPlayerValue(duration: Duration.zero));
@@ -183,11 +184,14 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
       : dataSource = Uri.file(file.absolute.path).toString(),
         dataSourceType = DataSourceType.file,
         package = null,
+        aesOptions = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
   /// The URI to the video file. This will be in different formats depending on
   /// the [DataSourceType] of the original video.
   final String dataSource;
+
+  final AesOptions? aesOptions;
 
   /// Describes the type of data source this [MiniController]
   /// is constructed with.
@@ -226,6 +230,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.network,
           uri: dataSource,
+          aesOptions: aesOptions
         );
       case DataSourceType.file:
         dataSourceDescription = DataSource(

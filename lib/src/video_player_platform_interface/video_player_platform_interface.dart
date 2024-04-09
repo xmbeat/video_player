@@ -5,6 +5,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:video_player_android/src/messages.g.dart';
 
 /// The interface that implementations of video_player must implement.
 ///
@@ -134,8 +135,7 @@ class DataSource {
     this.asset,
     this.package,
     this.httpHeaders = const <String, String>{},
-    this.aesMode = null,
-    this.aesIV = null
+    this.aesOptions = null
   });
   
 
@@ -167,8 +167,7 @@ class DataSource {
   /// [DataSourceType.asset] videos.
   final String? package;
 
-  final String? aesMode;
-  final Uint8List? aesIV;
+  final AesOptions? aesOptions;
 }
 
 /// The way in which the video was originally loaded.

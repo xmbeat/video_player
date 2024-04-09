@@ -143,8 +143,7 @@ class CreateMessage {
     this.packageName,
     this.formatHint,
     required this.httpHeaders,
-    this.aesMode,
-    this.aesIV,
+    this.aesOptions,
   });
 
   String? asset;
@@ -157,9 +156,7 @@ class CreateMessage {
 
   Map<String?, String?> httpHeaders;
 
-  String? aesMode;
-
-  Uint8List? aesIV;
+  AesOptions? aesOptions;
 
   Object encode() {
     return <Object?>[
@@ -168,8 +165,7 @@ class CreateMessage {
       packageName,
       formatHint,
       httpHeaders,
-      aesMode,
-      aesIV,
+      aesOptions?.encode(),
     ];
   }
 
@@ -181,8 +177,40 @@ class CreateMessage {
       packageName: result[2] as String?,
       formatHint: result[3] as String?,
       httpHeaders: (result[4] as Map<Object?, Object?>?)!.cast<String?, String?>(),
-      aesMode: result[5] as String?,
-      aesIV: result[6] as Uint8List?,
+      aesOptions: result[5] != null
+          ? AesOptions.decode(result[5]! as List<Object?>)
+          : null,
+    );
+  }
+}
+
+class AesOptions {
+  AesOptions({
+    required this.mode,
+    this.iv,
+    required this.key,
+  });
+
+  String mode;
+
+  Uint8List? iv;
+
+  Uint8List key;
+
+  Object encode() {
+    return <Object?>[
+      mode,
+      iv,
+      key,
+    ];
+  }
+
+  static AesOptions decode(Object result) {
+    result as List<Object?>;
+    return AesOptions(
+      mode: result[0]! as String,
+      iv: result[1] as Uint8List?,
+      key: result[2]! as Uint8List,
     );
   }
 }
@@ -212,26 +240,29 @@ class _AndroidVideoPlayerApiCodec extends StandardMessageCodec {
   const _AndroidVideoPlayerApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is CreateMessage) {
+    if (value is AesOptions) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is LoopingMessage) {
+    } else if (value is CreateMessage) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MixWithOthersMessage) {
+    } else if (value is LoopingMessage) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is PlaybackSpeedMessage) {
+    } else if (value is MixWithOthersMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is PositionMessage) {
+    } else if (value is PlaybackSpeedMessage) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is TextureMessage) {
+    } else if (value is PositionMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is VolumeMessage) {
+    } else if (value is TextureMessage) {
       buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    } else if (value is VolumeMessage) {
+      buffer.putUint8(135);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -242,18 +273,20 @@ class _AndroidVideoPlayerApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return CreateMessage.decode(readValue(buffer)!);
+        return AesOptions.decode(readValue(buffer)!);
       case 129: 
-        return LoopingMessage.decode(readValue(buffer)!);
+        return CreateMessage.decode(readValue(buffer)!);
       case 130: 
-        return MixWithOthersMessage.decode(readValue(buffer)!);
+        return LoopingMessage.decode(readValue(buffer)!);
       case 131: 
-        return PlaybackSpeedMessage.decode(readValue(buffer)!);
+        return MixWithOthersMessage.decode(readValue(buffer)!);
       case 132: 
-        return PositionMessage.decode(readValue(buffer)!);
+        return PlaybackSpeedMessage.decode(readValue(buffer)!);
       case 133: 
-        return TextureMessage.decode(readValue(buffer)!);
+        return PositionMessage.decode(readValue(buffer)!);
       case 134: 
+        return TextureMessage.decode(readValue(buffer)!);
+      case 135: 
         return VolumeMessage.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

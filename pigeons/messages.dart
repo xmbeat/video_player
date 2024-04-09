@@ -49,8 +49,14 @@ class CreateMessage {
   String? packageName;
   String? formatHint;
   Map<String?, String?> httpHeaders;
-  String? aesMode;
-  Uint8List? aesIV;
+  AesOptions? aesOptions;
+}
+
+class AesOptions{
+  String mode;
+  Uint8List? iv;
+  Uint8List key;
+  AesOptions({required this.mode, required this.key, this.iv = null});
 }
 
 class MixWithOthersMessage {

@@ -57,8 +57,7 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
       uri: uri,
       httpHeaders: httpHeaders,
       formatHint: formatHint,
-      aesMode: dataSource.aesMode,
-      aesIV: dataSource.aesIV
+      aesOptions:dataSource.aesOptions
     );
 
     final TextureMessage response = await _api.create(message);

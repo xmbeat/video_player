@@ -456,24 +456,14 @@ public class Messages {
       this.httpHeaders = setterArg;
     }
 
-    private @Nullable String aesMode;
+    private @Nullable AesOptions aesOptions;
 
-    public @Nullable String getAesMode() {
-      return aesMode;
+    public @Nullable AesOptions getAesOptions() {
+      return aesOptions;
     }
 
-    public void setAesMode(@Nullable String setterArg) {
-      this.aesMode = setterArg;
-    }
-
-    private @Nullable byte[] aesIV;
-
-    public @Nullable byte[] getAesIV() {
-      return aesIV;
-    }
-
-    public void setAesIV(@Nullable byte[] setterArg) {
-      this.aesIV = setterArg;
+    public void setAesOptions(@Nullable AesOptions setterArg) {
+      this.aesOptions = setterArg;
     }
 
     /** Constructor is non-public to enforce null safety; use Builder. */
@@ -516,17 +506,10 @@ public class Messages {
         return this;
       }
 
-      private @Nullable String aesMode;
+      private @Nullable AesOptions aesOptions;
 
-      public @NonNull Builder setAesMode(@Nullable String setterArg) {
-        this.aesMode = setterArg;
-        return this;
-      }
-
-      private @Nullable byte[] aesIV;
-
-      public @NonNull Builder setAesIV(@Nullable byte[] setterArg) {
-        this.aesIV = setterArg;
+      public @NonNull Builder setAesOptions(@Nullable AesOptions setterArg) {
+        this.aesOptions = setterArg;
         return this;
       }
 
@@ -537,22 +520,20 @@ public class Messages {
         pigeonReturn.setPackageName(packageName);
         pigeonReturn.setFormatHint(formatHint);
         pigeonReturn.setHttpHeaders(httpHeaders);
-        pigeonReturn.setAesMode(aesMode);
-        pigeonReturn.setAesIV(aesIV);
+        pigeonReturn.setAesOptions(aesOptions);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(7);
+      ArrayList<Object> toListResult = new ArrayList<Object>(6);
       toListResult.add(asset);
       toListResult.add(uri);
       toListResult.add(packageName);
       toListResult.add(formatHint);
       toListResult.add(httpHeaders);
-      toListResult.add(aesMode);
-      toListResult.add(aesIV);
+      toListResult.add((aesOptions == null) ? null : aesOptions.toList());
       return toListResult;
     }
 
@@ -568,10 +549,102 @@ public class Messages {
       pigeonResult.setFormatHint((String) formatHint);
       Object httpHeaders = list.get(4);
       pigeonResult.setHttpHeaders((Map<String, String>) httpHeaders);
-      Object aesMode = list.get(5);
-      pigeonResult.setAesMode((String) aesMode);
-      Object aesIV = list.get(6);
-      pigeonResult.setAesIV((byte[]) aesIV);
+      Object aesOptions = list.get(5);
+      pigeonResult.setAesOptions((aesOptions == null) ? null : AesOptions.fromList((ArrayList<Object>) aesOptions));
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class AesOptions {
+    private @NonNull String mode;
+
+    public @NonNull String getMode() {
+      return mode;
+    }
+
+    public void setMode(@NonNull String setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"mode\" is null.");
+      }
+      this.mode = setterArg;
+    }
+
+    private @Nullable byte[] iv;
+
+    public @Nullable byte[] getIv() {
+      return iv;
+    }
+
+    public void setIv(@Nullable byte[] setterArg) {
+      this.iv = setterArg;
+    }
+
+    private @NonNull byte[] key;
+
+    public @NonNull byte[] getKey() {
+      return key;
+    }
+
+    public void setKey(@NonNull byte[] setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"key\" is null.");
+      }
+      this.key = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    AesOptions() {}
+
+    public static final class Builder {
+
+      private @Nullable String mode;
+
+      public @NonNull Builder setMode(@NonNull String setterArg) {
+        this.mode = setterArg;
+        return this;
+      }
+
+      private @Nullable byte[] iv;
+
+      public @NonNull Builder setIv(@Nullable byte[] setterArg) {
+        this.iv = setterArg;
+        return this;
+      }
+
+      private @Nullable byte[] key;
+
+      public @NonNull Builder setKey(@NonNull byte[] setterArg) {
+        this.key = setterArg;
+        return this;
+      }
+
+      public @NonNull AesOptions build() {
+        AesOptions pigeonReturn = new AesOptions();
+        pigeonReturn.setMode(mode);
+        pigeonReturn.setIv(iv);
+        pigeonReturn.setKey(key);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(3);
+      toListResult.add(mode);
+      toListResult.add(iv);
+      toListResult.add(key);
+      return toListResult;
+    }
+
+    static @NonNull AesOptions fromList(@NonNull ArrayList<Object> list) {
+      AesOptions pigeonResult = new AesOptions();
+      Object mode = list.get(0);
+      pigeonResult.setMode((String) mode);
+      Object iv = list.get(1);
+      pigeonResult.setIv((byte[]) iv);
+      Object key = list.get(2);
+      pigeonResult.setKey((byte[]) key);
       return pigeonResult;
     }
   }
@@ -634,18 +707,20 @@ public class Messages {
     protected Object readValueOfType(byte type, @NonNull ByteBuffer buffer) {
       switch (type) {
         case (byte) 128:
-          return CreateMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return AesOptions.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 129:
-          return LoopingMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return CreateMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 130:
-          return MixWithOthersMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return LoopingMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 131:
-          return PlaybackSpeedMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return MixWithOthersMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 132:
-          return PositionMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return PlaybackSpeedMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 133:
-          return TextureMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return PositionMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 134:
+          return TextureMessage.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 135:
           return VolumeMessage.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -654,26 +729,29 @@ public class Messages {
 
     @Override
     protected void writeValue(@NonNull ByteArrayOutputStream stream, Object value) {
-      if (value instanceof CreateMessage) {
+      if (value instanceof AesOptions) {
         stream.write(128);
+        writeValue(stream, ((AesOptions) value).toList());
+      } else if (value instanceof CreateMessage) {
+        stream.write(129);
         writeValue(stream, ((CreateMessage) value).toList());
       } else if (value instanceof LoopingMessage) {
-        stream.write(129);
+        stream.write(130);
         writeValue(stream, ((LoopingMessage) value).toList());
       } else if (value instanceof MixWithOthersMessage) {
-        stream.write(130);
+        stream.write(131);
         writeValue(stream, ((MixWithOthersMessage) value).toList());
       } else if (value instanceof PlaybackSpeedMessage) {
-        stream.write(131);
+        stream.write(132);
         writeValue(stream, ((PlaybackSpeedMessage) value).toList());
       } else if (value instanceof PositionMessage) {
-        stream.write(132);
+        stream.write(133);
         writeValue(stream, ((PositionMessage) value).toList());
       } else if (value instanceof TextureMessage) {
-        stream.write(133);
+        stream.write(134);
         writeValue(stream, ((TextureMessage) value).toList());
       } else if (value instanceof VolumeMessage) {
-        stream.write(134);
+        stream.write(135);
         writeValue(stream, ((VolumeMessage) value).toList());
       } else {
         super.writeValue(stream, value);
