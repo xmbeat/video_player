@@ -54,7 +54,7 @@ final class VideoPlayer {
   private final TextureRegistry.SurfaceTextureEntry textureEntry;
 
   private QueuingEventSink eventSink;
-
+  private Map<String, Object> eventResponses = new HashMap<>();
   private final EventChannel eventChannel;
 
   private static final String USER_AGENT = "User-Agent";
@@ -77,16 +77,28 @@ final class VideoPlayer {
       String formatHint,
       @NonNull Map<String, String> httpHeaders,
       AesOptions aesOptions,
+      boolean isCustom,
       VideoPlayerOptions options) {
     this.eventChannel = eventChannel;
     this.textureEntry = textureEntry;
     this.options = options;
     this.aesOptions = aesOptions;
+    
     ExoPlayer exoPlayer = new ExoPlayer.Builder(context).build();
     Uri uri = Uri.parse(dataSource);
     MediaSource mediaSource = null;
-    if (aesOptions!=null){
-      DataSource.Factory encryptedDataSourceFactory = new EncryptedDataSourceFactory(aesOptions.getKey(), aesOptions.getIv());
+    QueuingEventSink sink = new QueuingEventSink();
+    if (isCustom){
+      DataSource.Factory customDataSourceFactory = new CustomDataSourceFactory(sink, eventResponses);
+      mediaSource = new ProgressiveMediaSource.Factory(customDataSourceFactory).createMediaSource(
+        MediaItem.fromUri(dataSource)
+      );
+    }
+    else if (aesOptions!=null){
+      DataSource.Factory encryptedDataSourceFactory = new EncryptedDataSourceFactory(
+        aesOptions.getKey(), 
+        aesOptions.getIv()
+      );
       mediaSource = new ProgressiveMediaSource.Factory(encryptedDataSourceFactory).createMediaSource(
         MediaItem.fromUri(dataSource)
       );
@@ -102,7 +114,7 @@ final class VideoPlayer {
     exoPlayer.setMediaSource(mediaSource);
     exoPlayer.prepare();
 
-    setUpVideoPlayer(exoPlayer, new QueuingEventSink());
+    setUpVideoPlayer(exoPlayer, sink);
   }
 
   // Constructor used to directly test members of this class.
@@ -278,6 +290,10 @@ final class VideoPlayer {
         !isMixMode);
   }
 
+  void addEventReponse(String event, Object result){
+    eventResponses.put(event, result);
+  }
+  
   void play() {
     exoPlayer.setPlayWhenReady(true);
   }

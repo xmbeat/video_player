@@ -4,6 +4,9 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import android.os.Handler;
+import android.os.Looper;
+
 
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -15,7 +18,8 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.Key;
 import java.util.Arrays;
-
+import java.util.Map;
+import java.util.HashMap;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.spec.IvParameterSpec;
@@ -31,14 +35,11 @@ public class EncryptedDataSourceFactory implements  DataSource.Factory{
     @NonNull
     @Override
     public DataSource createDataSource() {
-        return new EncryptedDataSource(key, iv);
+        return new EncryptedDataSource(this);
     }
 
     private static class EncryptedDataSource implements DataSource {
-        private byte[] key;
-        private byte[]iv;
-
-        private byte[]buffer;
+        EncryptedDataSourceFactory factory;
 
         private long offset;
         private static final String TAG = "EncryptedDataSource";
@@ -47,10 +48,9 @@ public class EncryptedDataSourceFactory implements  DataSource.Factory{
         private CipherInputStream inputStream;
         private DataSpec dataSpec;
         private Cipher cipher;
-        EncryptedDataSource(byte[] key, byte[] iv){
-            this.key = key;
-            this.iv = iv;
 
+        EncryptedDataSource(EncryptedDataSourceFactory encryptedDataSourceFactory){
+            this.factory = encryptedDataSourceFactory;
         }
 
         @Override
@@ -78,7 +78,7 @@ public class EncryptedDataSourceFactory implements  DataSource.Factory{
 
                 //Modificamos el IV basado en el bloque desde que empezara a leer.
                 long blockOffset = start / 16;
-                byte[] ivAdjusted = Arrays.copyOf(iv, iv.length);
+                byte[] ivAdjusted = Arrays.copyOf(factory.iv, factory.iv.length);
                 ByteBuffer byteBuffer = ByteBuffer.wrap(ivAdjusted);
                 byteBuffer.position(8);
                 long counter = byteBuffer.getLong() + blockOffset;
@@ -87,7 +87,7 @@ public class EncryptedDataSourceFactory implements  DataSource.Factory{
 
                 cipher = Cipher.getInstance("AES/CTR/NoPadding");
                 IvParameterSpec ivParameterSpec = new IvParameterSpec(ivAdjusted);
-                Key secretKey = new SecretKeySpec(key, "AES");
+                Key secretKey = new SecretKeySpec(factory.key, "AES");
                 cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
 
                 // Obtener el InputStream del archivo remoto
@@ -128,7 +128,6 @@ public class EncryptedDataSourceFactory implements  DataSource.Factory{
 
         @Override
         public void close() throws IOException {
-            Log.d("CustomDataSource", "Closing");
             if (inputStream != null) {
                 try {
                     inputStream.close();
@@ -144,7 +143,6 @@ public class EncryptedDataSourceFactory implements  DataSource.Factory{
 
         @Override
         public int read(@NonNull byte[] buffer, int offset, int readLength) throws IOException {
-            //Log.d("CustomDataSource", "Reading " + readLength);
             if (inputStream == null) {
                 throw new IOException("Input stream is not opened");
             }

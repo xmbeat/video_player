@@ -31,11 +31,27 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
   }
 
   @override
+  Future<void> sendDataSourceReadResponse (int textureId, Uint8List? data, {int? errorCode}){
+    return _api.sendDataSourceReadResponse(ReadResponseMessage(textureId: textureId, data: data, errorCode: errorCode));
+  }
+
+  @override
+  Future<void> sendDataSourceOpenResponse(int textureId, int? length, {int? errorCode}) {
+    return _api.sendDataSourceOpenResponse(OpenResponseMessage(textureId: textureId, length: length, errorCode: errorCode ));
+  }
+
+  @override
+  Future<void> sendDataSourceCloseResponse(int textureId, {int? errorCode}) {
+    return _api.sendDataSourceCloseResponse(CloseResponseMessage(textureId: textureId, errorCode: errorCode));
+  }
+
+  @override
   Future<int?> create(DataSource dataSource) async {
     String? asset;
     String? packageName;
     String? uri;
     String? formatHint;
+    bool isCustom = false;
     Map<String, String> httpHeaders = <String, String>{};
     switch (dataSource.sourceType) {
       case DataSourceType.asset:
@@ -50,6 +66,10 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
         httpHeaders = dataSource.httpHeaders;
       case DataSourceType.contentUri:
         uri = dataSource.uri;
+      case DataSourceType.custom:
+        uri = dataSource.uri;
+        isCustom = true;
+        break;
     }
     final CreateMessage message = CreateMessage(
       asset: asset,
@@ -57,7 +77,8 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
       uri: uri,
       httpHeaders: httpHeaders,
       formatHint: formatHint,
-      aesOptions:dataSource.aesOptions
+      aesOptions: dataSource.aesOptions,
+      isCustom: isCustom
     );
 
     final TextureMessage response = await _api.create(message);
@@ -150,6 +171,18 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
             eventType: VideoEventType.isPlayingStateUpdate,
             isPlaying: map['isPlaying'] as bool,
           );
+        
+        case 'dataSourceOpen':
+          return VideoEvent(eventType: VideoEventType.dataSourceOpen,
+            detail: map['detail']
+          );
+        case 'dataSourceRead':
+          return VideoEvent(eventType: VideoEventType.dataSourceRead, 
+            detail: map['detail']
+          );
+        case 'dataSourceClose':
+          return VideoEvent(eventType: VideoEventType.dataSourceClose, 
+            detail: map['detail']);
         default:
           return VideoEvent(eventType: VideoEventType.unknown);
       }

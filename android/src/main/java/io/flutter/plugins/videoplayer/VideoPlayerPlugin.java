@@ -22,6 +22,9 @@ import io.flutter.plugins.videoplayer.Messages.PositionMessage;
 import io.flutter.plugins.videoplayer.Messages.TextureMessage;
 import io.flutter.plugins.videoplayer.Messages.VolumeMessage;
 import io.flutter.plugins.videoplayer.Messages.AesOptions;
+import io.flutter.plugins.videoplayer.Messages.ReadResponseMessage;
+import io.flutter.plugins.videoplayer.Messages.OpenResponseMessage;
+import io.flutter.plugins.videoplayer.Messages.CloseResponseMessage;
 import io.flutter.view.TextureRegistry;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -144,6 +147,7 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
               null,
               new HashMap<>(),
               arg.getAesOptions(),
+              arg.getIsCustom(),
               options);
     } else {
       Map<String, String> httpHeaders = arg.getHttpHeaders();
@@ -156,6 +160,7 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
               arg.getFormatHint(),
               httpHeaders,
               arg.getAesOptions(),
+              arg.getIsCustom(),
               options);
     }
     videoPlayers.put(handle.id(), player);
@@ -213,6 +218,30 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
   @Override
   public void setMixWithOthers(@NonNull MixWithOthersMessage arg) {
     options.mixWithOthers = arg.getMixWithOthers();
+  }
+
+
+  public void sendDataSourceReadResponse(@NonNull ReadResponseMessage readResponse){
+    VideoPlayer player = videoPlayers.get(readResponse.getTextureId());
+    Map<String, Object> response = new HashMap<String, Object>();
+    response.put("data", readResponse.getData());
+    response.put("errorCode", readResponse.getErrorCode());
+    player.addEventReponse("dataSourceRead", response);
+  }
+
+  public void sendDataSourceOpenResponse(@NonNull OpenResponseMessage openResponse){
+    VideoPlayer player = videoPlayers.get(openResponse.getTextureId());
+    Map<String, Object> response = new HashMap<String, Object>();
+    response.put("length", openResponse.getLength());
+    response.put("errorCode", openResponse.getErrorCode());
+    player.addEventReponse("dataSourceOpen", response);
+  }
+
+  public void sendDataSourceCloseResponse(@NonNull CloseResponseMessage closeResponse){
+    VideoPlayer player = videoPlayers.get(closeResponse.getTextureId());
+    Map<String, Object> response = new HashMap<String, Object>();
+    response.put("errorCode", closeResponse.getErrorCode());
+    player.addEventReponse("dataSourceClose", response);
   }
 
   private interface KeyForAssetFn {

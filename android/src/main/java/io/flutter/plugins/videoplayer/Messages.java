@@ -466,6 +466,16 @@ public class Messages {
       this.aesOptions = setterArg;
     }
 
+    private @Nullable Boolean isCustom;
+
+    public @Nullable Boolean getIsCustom() {
+      return isCustom;
+    }
+
+    public void setIsCustom(@Nullable Boolean setterArg) {
+      this.isCustom = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     CreateMessage() {}
 
@@ -513,6 +523,13 @@ public class Messages {
         return this;
       }
 
+      private @Nullable Boolean isCustom;
+
+      public @NonNull Builder setIsCustom(@Nullable Boolean setterArg) {
+        this.isCustom = setterArg;
+        return this;
+      }
+
       public @NonNull CreateMessage build() {
         CreateMessage pigeonReturn = new CreateMessage();
         pigeonReturn.setAsset(asset);
@@ -521,19 +538,21 @@ public class Messages {
         pigeonReturn.setFormatHint(formatHint);
         pigeonReturn.setHttpHeaders(httpHeaders);
         pigeonReturn.setAesOptions(aesOptions);
+        pigeonReturn.setIsCustom(isCustom);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(6);
+      ArrayList<Object> toListResult = new ArrayList<Object>(7);
       toListResult.add(asset);
       toListResult.add(uri);
       toListResult.add(packageName);
       toListResult.add(formatHint);
       toListResult.add(httpHeaders);
       toListResult.add((aesOptions == null) ? null : aesOptions.toList());
+      toListResult.add(isCustom);
       return toListResult;
     }
 
@@ -551,6 +570,260 @@ public class Messages {
       pigeonResult.setHttpHeaders((Map<String, String>) httpHeaders);
       Object aesOptions = list.get(5);
       pigeonResult.setAesOptions((aesOptions == null) ? null : AesOptions.fromList((ArrayList<Object>) aesOptions));
+      Object isCustom = list.get(6);
+      pigeonResult.setIsCustom((Boolean) isCustom);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class ReadResponseMessage {
+    private @Nullable byte[] data;
+
+    public @Nullable byte[] getData() {
+      return data;
+    }
+
+    public void setData(@Nullable byte[] setterArg) {
+      this.data = setterArg;
+    }
+
+    private @Nullable Long errorCode;
+
+    public @Nullable Long getErrorCode() {
+      return errorCode;
+    }
+
+    public void setErrorCode(@Nullable Long setterArg) {
+      this.errorCode = setterArg;
+    }
+
+    private @NonNull Long textureId;
+
+    public @NonNull Long getTextureId() {
+      return textureId;
+    }
+
+    public void setTextureId(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"textureId\" is null.");
+      }
+      this.textureId = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    ReadResponseMessage() {}
+
+    public static final class Builder {
+
+      private @Nullable byte[] data;
+
+      public @NonNull Builder setData(@Nullable byte[] setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      private @Nullable Long errorCode;
+
+      public @NonNull Builder setErrorCode(@Nullable Long setterArg) {
+        this.errorCode = setterArg;
+        return this;
+      }
+
+      private @Nullable Long textureId;
+
+      public @NonNull Builder setTextureId(@NonNull Long setterArg) {
+        this.textureId = setterArg;
+        return this;
+      }
+
+      public @NonNull ReadResponseMessage build() {
+        ReadResponseMessage pigeonReturn = new ReadResponseMessage();
+        pigeonReturn.setData(data);
+        pigeonReturn.setErrorCode(errorCode);
+        pigeonReturn.setTextureId(textureId);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(3);
+      toListResult.add(data);
+      toListResult.add(errorCode);
+      toListResult.add(textureId);
+      return toListResult;
+    }
+
+    static @NonNull ReadResponseMessage fromList(@NonNull ArrayList<Object> list) {
+      ReadResponseMessage pigeonResult = new ReadResponseMessage();
+      Object data = list.get(0);
+      pigeonResult.setData((byte[]) data);
+      Object errorCode = list.get(1);
+      pigeonResult.setErrorCode((errorCode == null) ? null : ((errorCode instanceof Integer) ? (Integer) errorCode : (Long) errorCode));
+      Object textureId = list.get(2);
+      pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class OpenResponseMessage {
+    private @NonNull Long textureId;
+
+    public @NonNull Long getTextureId() {
+      return textureId;
+    }
+
+    public void setTextureId(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"textureId\" is null.");
+      }
+      this.textureId = setterArg;
+    }
+
+    private @Nullable Long length;
+
+    public @Nullable Long getLength() {
+      return length;
+    }
+
+    public void setLength(@Nullable Long setterArg) {
+      this.length = setterArg;
+    }
+
+    private @Nullable Long errorCode;
+
+    public @Nullable Long getErrorCode() {
+      return errorCode;
+    }
+
+    public void setErrorCode(@Nullable Long setterArg) {
+      this.errorCode = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    OpenResponseMessage() {}
+
+    public static final class Builder {
+
+      private @Nullable Long textureId;
+
+      public @NonNull Builder setTextureId(@NonNull Long setterArg) {
+        this.textureId = setterArg;
+        return this;
+      }
+
+      private @Nullable Long length;
+
+      public @NonNull Builder setLength(@Nullable Long setterArg) {
+        this.length = setterArg;
+        return this;
+      }
+
+      private @Nullable Long errorCode;
+
+      public @NonNull Builder setErrorCode(@Nullable Long setterArg) {
+        this.errorCode = setterArg;
+        return this;
+      }
+
+      public @NonNull OpenResponseMessage build() {
+        OpenResponseMessage pigeonReturn = new OpenResponseMessage();
+        pigeonReturn.setTextureId(textureId);
+        pigeonReturn.setLength(length);
+        pigeonReturn.setErrorCode(errorCode);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(3);
+      toListResult.add(textureId);
+      toListResult.add(length);
+      toListResult.add(errorCode);
+      return toListResult;
+    }
+
+    static @NonNull OpenResponseMessage fromList(@NonNull ArrayList<Object> list) {
+      OpenResponseMessage pigeonResult = new OpenResponseMessage();
+      Object textureId = list.get(0);
+      pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
+      Object length = list.get(1);
+      pigeonResult.setLength((length == null) ? null : ((length instanceof Integer) ? (Integer) length : (Long) length));
+      Object errorCode = list.get(2);
+      pigeonResult.setErrorCode((errorCode == null) ? null : ((errorCode instanceof Integer) ? (Integer) errorCode : (Long) errorCode));
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class CloseResponseMessage {
+    private @NonNull Long textureId;
+
+    public @NonNull Long getTextureId() {
+      return textureId;
+    }
+
+    public void setTextureId(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"textureId\" is null.");
+      }
+      this.textureId = setterArg;
+    }
+
+    private @Nullable Long errorCode;
+
+    public @Nullable Long getErrorCode() {
+      return errorCode;
+    }
+
+    public void setErrorCode(@Nullable Long setterArg) {
+      this.errorCode = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    CloseResponseMessage() {}
+
+    public static final class Builder {
+
+      private @Nullable Long textureId;
+
+      public @NonNull Builder setTextureId(@NonNull Long setterArg) {
+        this.textureId = setterArg;
+        return this;
+      }
+
+      private @Nullable Long errorCode;
+
+      public @NonNull Builder setErrorCode(@Nullable Long setterArg) {
+        this.errorCode = setterArg;
+        return this;
+      }
+
+      public @NonNull CloseResponseMessage build() {
+        CloseResponseMessage pigeonReturn = new CloseResponseMessage();
+        pigeonReturn.setTextureId(textureId);
+        pigeonReturn.setErrorCode(errorCode);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(2);
+      toListResult.add(textureId);
+      toListResult.add(errorCode);
+      return toListResult;
+    }
+
+    static @NonNull CloseResponseMessage fromList(@NonNull ArrayList<Object> list) {
+      CloseResponseMessage pigeonResult = new CloseResponseMessage();
+      Object textureId = list.get(0);
+      pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
+      Object errorCode = list.get(1);
+      pigeonResult.setErrorCode((errorCode == null) ? null : ((errorCode instanceof Integer) ? (Integer) errorCode : (Long) errorCode));
       return pigeonResult;
     }
   }
@@ -709,18 +982,24 @@ public class Messages {
         case (byte) 128:
           return AesOptions.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 129:
-          return CreateMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return CloseResponseMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 130:
-          return LoopingMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return CreateMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 131:
-          return MixWithOthersMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return LoopingMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 132:
-          return PlaybackSpeedMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return MixWithOthersMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 133:
-          return PositionMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return OpenResponseMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 134:
-          return TextureMessage.fromList((ArrayList<Object>) readValue(buffer));
+          return PlaybackSpeedMessage.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 135:
+          return PositionMessage.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 136:
+          return ReadResponseMessage.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 137:
+          return TextureMessage.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 138:
           return VolumeMessage.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -732,26 +1011,35 @@ public class Messages {
       if (value instanceof AesOptions) {
         stream.write(128);
         writeValue(stream, ((AesOptions) value).toList());
-      } else if (value instanceof CreateMessage) {
+      } else if (value instanceof CloseResponseMessage) {
         stream.write(129);
+        writeValue(stream, ((CloseResponseMessage) value).toList());
+      } else if (value instanceof CreateMessage) {
+        stream.write(130);
         writeValue(stream, ((CreateMessage) value).toList());
       } else if (value instanceof LoopingMessage) {
-        stream.write(130);
+        stream.write(131);
         writeValue(stream, ((LoopingMessage) value).toList());
       } else if (value instanceof MixWithOthersMessage) {
-        stream.write(131);
-        writeValue(stream, ((MixWithOthersMessage) value).toList());
-      } else if (value instanceof PlaybackSpeedMessage) {
         stream.write(132);
+        writeValue(stream, ((MixWithOthersMessage) value).toList());
+      } else if (value instanceof OpenResponseMessage) {
+        stream.write(133);
+        writeValue(stream, ((OpenResponseMessage) value).toList());
+      } else if (value instanceof PlaybackSpeedMessage) {
+        stream.write(134);
         writeValue(stream, ((PlaybackSpeedMessage) value).toList());
       } else if (value instanceof PositionMessage) {
-        stream.write(133);
+        stream.write(135);
         writeValue(stream, ((PositionMessage) value).toList());
+      } else if (value instanceof ReadResponseMessage) {
+        stream.write(136);
+        writeValue(stream, ((ReadResponseMessage) value).toList());
       } else if (value instanceof TextureMessage) {
-        stream.write(134);
+        stream.write(137);
         writeValue(stream, ((TextureMessage) value).toList());
       } else if (value instanceof VolumeMessage) {
-        stream.write(135);
+        stream.write(138);
         writeValue(stream, ((VolumeMessage) value).toList());
       } else {
         super.writeValue(stream, value);
@@ -785,6 +1073,12 @@ public class Messages {
     void pause(@NonNull TextureMessage msg);
 
     void setMixWithOthers(@NonNull MixWithOthersMessage msg);
+
+    void sendDataSourceReadResponse(@NonNull ReadResponseMessage readResponse);
+
+    void sendDataSourceOpenResponse(@NonNull OpenResponseMessage openResponse);
+
+    void sendDataSourceCloseResponse(@NonNull CloseResponseMessage closeResponse);
 
     /** The codec used by AndroidVideoPlayerApi. */
     static @NonNull MessageCodec<Object> getCodec() {
@@ -1042,6 +1336,78 @@ public class Messages {
                 MixWithOthersMessage msgArg = (MixWithOthersMessage) args.get(0);
                 try {
                   api.setMixWithOthers(msgArg);
+                  wrapped.add(0, null);
+                }
+ catch (Throwable exception) {
+                  ArrayList<Object> wrappedError = wrapError(exception);
+                  wrapped = wrappedError;
+                }
+                reply.reply(wrapped);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.AndroidVideoPlayerApi.sendDataSourceReadResponse", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                ReadResponseMessage readResponseArg = (ReadResponseMessage) args.get(0);
+                try {
+                  api.sendDataSourceReadResponse(readResponseArg);
+                  wrapped.add(0, null);
+                }
+ catch (Throwable exception) {
+                  ArrayList<Object> wrappedError = wrapError(exception);
+                  wrapped = wrappedError;
+                }
+                reply.reply(wrapped);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.AndroidVideoPlayerApi.sendDataSourceOpenResponse", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                OpenResponseMessage openResponseArg = (OpenResponseMessage) args.get(0);
+                try {
+                  api.sendDataSourceOpenResponse(openResponseArg);
+                  wrapped.add(0, null);
+                }
+ catch (Throwable exception) {
+                  ArrayList<Object> wrappedError = wrapError(exception);
+                  wrapped = wrappedError;
+                }
+                reply.reply(wrapped);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.AndroidVideoPlayerApi.sendDataSourceCloseResponse", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                CloseResponseMessage closeResponseArg = (CloseResponseMessage) args.get(0);
+                try {
+                  api.sendDataSourceCloseResponse(closeResponseArg);
                   wrapped.add(0, null);
                 }
  catch (Throwable exception) {

@@ -144,6 +144,7 @@ class CreateMessage {
     this.formatHint,
     required this.httpHeaders,
     this.aesOptions,
+    this.isCustom,
   });
 
   String? asset;
@@ -158,6 +159,8 @@ class CreateMessage {
 
   AesOptions? aesOptions;
 
+  bool? isCustom;
+
   Object encode() {
     return <Object?>[
       asset,
@@ -166,6 +169,7 @@ class CreateMessage {
       formatHint,
       httpHeaders,
       aesOptions?.encode(),
+      isCustom,
     ];
   }
 
@@ -180,6 +184,95 @@ class CreateMessage {
       aesOptions: result[5] != null
           ? AesOptions.decode(result[5]! as List<Object?>)
           : null,
+      isCustom: result[6] as bool?,
+    );
+  }
+}
+
+class ReadResponseMessage {
+  ReadResponseMessage({
+    this.data,
+    this.errorCode,
+    required this.textureId,
+  });
+
+  Uint8List? data;
+
+  int? errorCode;
+
+  int textureId;
+
+  Object encode() {
+    return <Object?>[
+      data,
+      errorCode,
+      textureId,
+    ];
+  }
+
+  static ReadResponseMessage decode(Object result) {
+    result as List<Object?>;
+    return ReadResponseMessage(
+      data: result[0] as Uint8List?,
+      errorCode: result[1] as int?,
+      textureId: result[2]! as int,
+    );
+  }
+}
+
+class OpenResponseMessage {
+  OpenResponseMessage({
+    required this.textureId,
+    this.length,
+    this.errorCode,
+  });
+
+  int textureId;
+
+  int? length;
+
+  int? errorCode;
+
+  Object encode() {
+    return <Object?>[
+      textureId,
+      length,
+      errorCode,
+    ];
+  }
+
+  static OpenResponseMessage decode(Object result) {
+    result as List<Object?>;
+    return OpenResponseMessage(
+      textureId: result[0]! as int,
+      length: result[1] as int?,
+      errorCode: result[2] as int?,
+    );
+  }
+}
+
+class CloseResponseMessage {
+  CloseResponseMessage({
+    required this.textureId,
+    this.errorCode,
+  });
+
+  int textureId;
+
+  int? errorCode;
+
+  Object encode() {
+    return <Object?>[
+      textureId,
+      errorCode,
+    ];
+  }
+
+  static CloseResponseMessage decode(Object result) {
+    result as List<Object?>;
+    return CloseResponseMessage(
+      textureId: result[0]! as int,
+      errorCode: result[1] as int?,
     );
   }
 }
@@ -243,26 +336,35 @@ class _AndroidVideoPlayerApiCodec extends StandardMessageCodec {
     if (value is AesOptions) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is CreateMessage) {
+    } else if (value is CloseResponseMessage) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is LoopingMessage) {
+    } else if (value is CreateMessage) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is MixWithOthersMessage) {
+    } else if (value is LoopingMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is PlaybackSpeedMessage) {
+    } else if (value is MixWithOthersMessage) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is PositionMessage) {
+    } else if (value is OpenResponseMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is TextureMessage) {
+    } else if (value is PlaybackSpeedMessage) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is VolumeMessage) {
+    } else if (value is PositionMessage) {
       buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    } else if (value is ReadResponseMessage) {
+      buffer.putUint8(136);
+      writeValue(buffer, value.encode());
+    } else if (value is TextureMessage) {
+      buffer.putUint8(137);
+      writeValue(buffer, value.encode());
+    } else if (value is VolumeMessage) {
+      buffer.putUint8(138);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -275,18 +377,24 @@ class _AndroidVideoPlayerApiCodec extends StandardMessageCodec {
       case 128: 
         return AesOptions.decode(readValue(buffer)!);
       case 129: 
-        return CreateMessage.decode(readValue(buffer)!);
+        return CloseResponseMessage.decode(readValue(buffer)!);
       case 130: 
-        return LoopingMessage.decode(readValue(buffer)!);
+        return CreateMessage.decode(readValue(buffer)!);
       case 131: 
-        return MixWithOthersMessage.decode(readValue(buffer)!);
+        return LoopingMessage.decode(readValue(buffer)!);
       case 132: 
-        return PlaybackSpeedMessage.decode(readValue(buffer)!);
+        return MixWithOthersMessage.decode(readValue(buffer)!);
       case 133: 
-        return PositionMessage.decode(readValue(buffer)!);
+        return OpenResponseMessage.decode(readValue(buffer)!);
       case 134: 
-        return TextureMessage.decode(readValue(buffer)!);
+        return PlaybackSpeedMessage.decode(readValue(buffer)!);
       case 135: 
+        return PositionMessage.decode(readValue(buffer)!);
+      case 136: 
+        return ReadResponseMessage.decode(readValue(buffer)!);
+      case 137: 
+        return TextureMessage.decode(readValue(buffer)!);
+      case 138: 
         return VolumeMessage.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -540,6 +648,72 @@ class AndroidVideoPlayerApi {
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_msg]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> sendDataSourceReadResponse(ReadResponseMessage arg_readResponse) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.AndroidVideoPlayerApi.sendDataSourceReadResponse', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_readResponse]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> sendDataSourceOpenResponse(OpenResponseMessage arg_openResponse) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.AndroidVideoPlayerApi.sendDataSourceOpenResponse', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_openResponse]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> sendDataSourceCloseResponse(CloseResponseMessage arg_closeResponse) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.AndroidVideoPlayerApi.sendDataSourceCloseResponse', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_closeResponse]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',

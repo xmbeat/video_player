@@ -85,6 +85,21 @@ class _ApiLogger implements TestHostVideoPlayerApi {
     log.add('setPlaybackSpeed');
     playbackSpeedMessage = arg;
   }
+  
+  @override
+  void sendDataSourceCloseResponse(CloseResponseMessage closeResponse) {
+    // TODO: implement sendDataSourceCloseResponse
+  }
+  
+  @override
+  void sendDataSourceOpenResponse(OpenResponseMessage openResponse) {
+    // TODO: implement sendDataSourceOpenResponse
+  }
+  
+  @override
+  void sendDataSourceReadResponse(ReadResponseMessage readResponse) {
+    // TODO: implement sendDataSourceReadResponse
+  }
 }
 
 void main() {

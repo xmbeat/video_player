@@ -50,7 +50,29 @@ class CreateMessage {
   String? formatHint;
   Map<String?, String?> httpHeaders;
   AesOptions? aesOptions;
+  bool? isCustom;
 }
+
+class ReadResponseMessage{
+  ReadResponseMessage({required this.textureId, this.data, this.errorCode});
+  Uint8List? data;
+  int? errorCode;
+  int textureId;
+}
+
+class OpenResponseMessage{
+  int textureId;
+  int? length;
+  int? errorCode;
+  OpenResponseMessage({required this.textureId, this.length, this.errorCode});
+}
+
+class CloseResponseMessage{
+  int textureId;
+  int? errorCode;
+  CloseResponseMessage({required this.textureId, this.errorCode});
+}
+
 
 class AesOptions{
   String mode;
@@ -77,4 +99,7 @@ abstract class AndroidVideoPlayerApi {
   void seekTo(PositionMessage msg);
   void pause(TextureMessage msg);
   void setMixWithOthers(MixWithOthersMessage msg);
+  void sendDataSourceReadResponse(ReadResponseMessage readResponse);
+  void sendDataSourceOpenResponse(OpenResponseMessage openResponse);
+  void sendDataSourceCloseResponse(CloseResponseMessage closeResponse);
 }

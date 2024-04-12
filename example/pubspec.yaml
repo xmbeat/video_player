@@ -17,6 +17,7 @@ dependencies:
     # the parent directory to use the current plugin's version.
     path: ../
   plugin_platform_interface:  ^2.1.8
+  dio: ^5.4.2+1
 
 dev_dependencies:
   flutter_test:

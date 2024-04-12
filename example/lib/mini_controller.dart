@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player_android/video_player_android.dart';
+import 'dart:developer' as dev;
 
 VideoPlayerPlatform? _cachedPlatform;
 
@@ -39,6 +40,7 @@ class VideoPlayerValue {
     this.isBuffering = false,
     this.playbackSpeed = 1.0,
     this.errorDescription,
+    this.detail = null,
   });
 
   /// Returns an instance for a video that hasn't been loaded.
@@ -83,6 +85,8 @@ class VideoPlayerValue {
   /// Indicates whether or not the video has been loaded and is ready to play.
   final bool isInitialized;
 
+  final Object? detail;
+
   /// Indicates whether or not the video is in an error state. If this is true
   /// [errorDescription] should have information about the problem.
   bool get hasError => errorDescription != null;
@@ -116,6 +120,7 @@ class VideoPlayerValue {
     bool? isBuffering,
     double? playbackSpeed,
     String? errorDescription,
+    Object? detail
   }) {
     return VideoPlayerValue(
       duration: duration ?? this.duration,
@@ -127,6 +132,7 @@ class VideoPlayerValue {
       isBuffering: isBuffering ?? this.isBuffering,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
       errorDescription: errorDescription ?? this.errorDescription,
+      detail: detail?? this.detail
     );
   }
 
@@ -143,7 +149,8 @@ class VideoPlayerValue {
           playbackSpeed == other.playbackSpeed &&
           errorDescription == other.errorDescription &&
           size == other.size &&
-          isInitialized == other.isInitialized;
+          isInitialized == other.isInitialized &&
+          detail == other.detail;
 
   @override
   int get hashCode => Object.hash(
@@ -170,6 +177,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   MiniController.asset(this.dataSource, {this.package})
       : dataSourceType = DataSourceType.asset,
         aesOptions = null,
+        inputDataSource = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from
@@ -177,6 +185,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   MiniController.network(this.dataSource, {this.aesOptions = null})
       : dataSourceType = DataSourceType.network,
         package = null,
+        inputDataSource = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from a file.
@@ -185,13 +194,21 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         dataSourceType = DataSourceType.file,
         package = null,
         aesOptions = null,
+        inputDataSource = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
+  MiniController.customDataSource(String uri, this.inputDataSource)
+      : dataSource = uri,
+        dataSourceType = DataSourceType.custom,
+        package = null,
+        aesOptions = null,
+        super(const VideoPlayerValue(duration: Duration.zero));
   /// The URI to the video file. This will be in different formats depending on
   /// the [DataSourceType] of the original video.
   final String dataSource;
 
   final AesOptions? aesOptions;
+  final InputDataSource? inputDataSource;
 
   /// Describes the type of data source this [MiniController]
   /// is constructed with.
@@ -242,6 +259,11 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
           sourceType: DataSourceType.contentUri,
           uri: dataSource,
         );
+      case DataSourceType.custom:
+        dataSourceDescription = DataSource(
+          sourceType: DataSourceType.custom,
+          uri: dataSource
+        );
     }
 
     _textureId = (await _platform.create(dataSourceDescription)) ??
@@ -271,6 +293,30 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
           value = value.copyWith(isBuffering: false);
         case VideoEventType.isPlayingStateUpdate:
           value = value.copyWith(isPlaying: event.isPlaying);
+        case VideoEventType.dataSourceClose:
+          inputDataSource!.close().then((value){
+            return _platform.sendDataSourceCloseResponse(_textureId);
+          }).catchError((e){
+            _platform.sendDataSourceCloseResponse(_textureId, errorCode: 1);
+          });
+          break;
+        case VideoEventType.dataSourceRead:
+          int readLength = (event.detail as Map)['readLength'];
+          inputDataSource!.read(readLength).then((value) {
+            return _platform.sendDataSourceReadResponse(_textureId, value);
+          }).catchError((e){
+             _platform.sendDataSourceReadResponse(_textureId, null, errorCode: 1);
+          });
+          break;
+        case VideoEventType.dataSourceOpen:
+          int position = (event.detail as Map)['position'];
+          int length = (event.detail as Map)['length'];
+          inputDataSource!.open(dataSource, position: position, length: length).then((value){
+            _platform.sendDataSourceOpenResponse(_textureId, value);
+          }).catchError((e){
+            _platform.sendDataSourceOpenResponse(_textureId, null, errorCode: 1);
+          });
+          break;
         case VideoEventType.unknown:
           break;
       }
@@ -290,6 +336,8 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         .listen(eventListener, onError: errorListener);
     return initializingCompleter.future;
   }
+
+
 
   @override
   Future<void> dispose() async {

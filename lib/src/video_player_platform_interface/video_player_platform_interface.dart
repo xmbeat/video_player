@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -108,6 +110,17 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
   Future<void> setWebOptions(int textureId, VideoPlayerWebOptions options) {
     throw UnimplementedError('setWebOptions() has not been implemented.');
   }
+
+  Future<void> sendDataSourceOpenResponse(int textureId, int? length, {int? errorCode}){
+    throw UnimplementedError('sendDataSourceOpenResponse() has not been implemented.');
+  }
+
+  Future<void> sendDataSourceReadResponse(int textureId, Uint8List? data, {int? errorCode}){
+    throw UnimplementedError('sendDataSourceReadResponse() has not been implemented.');
+  }
+  Future<void> sendDataSourceCloseResponse(int textureId, {int? errorCode}){
+    throw UnimplementedError('sendDataSourceCloseResponse() has not been implemented.');
+  }
 }
 
 class _PlaceholderImplementation extends VideoPlayerPlatform {}
@@ -186,6 +199,8 @@ enum DataSourceType {
 
   /// The video is available via contentUri. Android only.
   contentUri,
+
+  custom
 }
 
 /// The file format of the given video.
@@ -223,6 +238,7 @@ class VideoEvent {
     this.rotationCorrection,
     this.buffered,
     this.isPlaying,
+    this.detail
   });
 
   /// The type of the event.
@@ -253,6 +269,8 @@ class VideoEvent {
   /// Only used if [eventType] is [VideoEventType.isPlayingStateUpdate].
   final bool? isPlaying;
 
+  final Object? detail;
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -263,7 +281,7 @@ class VideoEvent {
             size == other.size &&
             rotationCorrection == other.rotationCorrection &&
             listEquals(buffered, other.buffered) &&
-            isPlaying == other.isPlaying;
+            detail == other.detail;
   }
 
   @override
@@ -302,6 +320,10 @@ enum VideoEventType {
   /// This event is fired when the video starts or pauses due to user actions or
   /// phone calls, or other app media such as music players.
   isPlayingStateUpdate,
+
+  dataSourceRead,
+  dataSourceOpen,
+  dataSourceClose,
 
   /// An unknown event has been received.
   unknown,
@@ -478,4 +500,16 @@ class VideoPlayerWebOptionsControls {
 
     return controlsList.join(' ');
   }
+}
+
+abstract class InputDataSource{
+  Future<int> open(String uri, {int position = 0, int length = -1});
+  Future<Uint8List> read(int readLength);
+  Future<void> close();
+}
+
+abstract class StreamDataSource{
+  Future<int> open(String uri, {int position = 0, int length = -1});
+  Stream<Uint8List> getStream();
+  Future<void> close();
 }
