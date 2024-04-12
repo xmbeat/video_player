@@ -14,6 +14,8 @@ import 'package:flutter/services.dart';
 import 'package:video_player_android/video_player_android.dart';
 import 'dart:developer' as dev;
 
+import 'package:video_player_example/custom_data_source.dart';
+
 VideoPlayerPlatform? _cachedPlatform;
 
 VideoPlayerPlatform get _platform {
@@ -177,7 +179,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   MiniController.asset(this.dataSource, {this.package})
       : dataSourceType = DataSourceType.asset,
         aesOptions = null,
-        inputDataSource = null,
+        _streamHandler = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from
@@ -185,7 +187,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   MiniController.network(this.dataSource, {this.aesOptions = null})
       : dataSourceType = DataSourceType.network,
         package = null,
-        inputDataSource = null,
+        _streamHandler = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [MiniController] playing a video from obtained from a file.
@@ -194,21 +196,22 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         dataSourceType = DataSourceType.file,
         package = null,
         aesOptions = null,
-        inputDataSource = null,
+        _streamHandler = null,
         super(const VideoPlayerValue(duration: Duration.zero));
 
-  MiniController.customDataSource(String uri, this.inputDataSource)
+  MiniController.customDataSource(String uri, StreamDataSource streamDataSource)
       : dataSource = uri,
         dataSourceType = DataSourceType.custom,
         package = null,
         aesOptions = null,
+        _streamHandler = StreamHandler(streamDataSource),
         super(const VideoPlayerValue(duration: Duration.zero));
   /// The URI to the video file. This will be in different formats depending on
   /// the [DataSourceType] of the original video.
   final String dataSource;
 
   final AesOptions? aesOptions;
-  final InputDataSource? inputDataSource;
+  final StreamHandler? _streamHandler;
 
   /// Describes the type of data source this [MiniController]
   /// is constructed with.
@@ -294,7 +297,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         case VideoEventType.isPlayingStateUpdate:
           value = value.copyWith(isPlaying: event.isPlaying);
         case VideoEventType.dataSourceClose:
-          inputDataSource!.close().then((value){
+          _streamHandler!.close().then((value){
             return _platform.sendDataSourceCloseResponse(_textureId);
           }).catchError((e){
             _platform.sendDataSourceCloseResponse(_textureId, errorCode: 1);
@@ -302,7 +305,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
           break;
         case VideoEventType.dataSourceRead:
           int readLength = (event.detail as Map)['readLength'];
-          inputDataSource!.read(readLength).then((value) {
+          _streamHandler!.read(readLength).then((value) {
             return _platform.sendDataSourceReadResponse(_textureId, value);
           }).catchError((e){
              _platform.sendDataSourceReadResponse(_textureId, null, errorCode: 1);
@@ -311,7 +314,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         case VideoEventType.dataSourceOpen:
           int position = (event.detail as Map)['position'];
           int length = (event.detail as Map)['length'];
-          inputDataSource!.open(dataSource, position: position, length: length).then((value){
+          _streamHandler!.open(dataSource, position: position, length: length).then((value){
             _platform.sendDataSourceOpenResponse(_textureId, value);
           }).catchError((e){
             _platform.sendDataSourceOpenResponse(_textureId, null, errorCode: 1);

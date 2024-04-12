@@ -5,47 +5,32 @@ import 'dart:typed_data';
 import 'package:video_player_android/video_player_android.dart';
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'dart:developer'as dev;
 
-class CustomDataSource extends InputDataSource {
-  Dio?_dio;
-  Stream<Uint8List> ?_inputStream;
+class StreamHandler{
   int _readLength = 0;
   int _totalChunkSizes = 0;
   List<Uint8List> _chunks = [];
   StreamSubscription<Uint8List>? _subscription;
   Completer<void> _completer = Completer();
+  late StreamDataSource _dataSource;
+
+  StreamHandler(this._dataSource);
   
-  @override
   Future<void> close() async {
-    Completer<void> completer = new Completer<void>();
-    if (_dio!=null){
-      await _subscription?.cancel();
-      _dio!.close();
-      _dio = null;
+    if (_subscription!=null){
+      await _subscription!.cancel();
       _subscription = null;
-      completer.complete();
     }
-    else{
-      completer.completeError(Exception("Connection is already closed"));
-    }
-    return completer.future;
   }
 
-  @override
   Future<int> open(String uri, {int position = 0, int length = -1}) async {
-    _dio = Dio();
-    var response = await _dio!.get(uri, options: Options(
-      responseType: ResponseType.stream,
-      headers: {
-        "Range": "bytes-$position-${length>0?position+length-1:''}"
-      }
-    ));
-    if (response.statusCode! < 200 && response.statusCode!>=300){
-      throw Exception("Status code for ${uri} is ${response.statusCode!}");
-    }
+    int contentLength = await _dataSource.open(uri, position: position, length: length);
     _completer = new Completer();
-    _inputStream = response.data.stream;
-    _subscription = _inputStream!.listen((chunk) {
+    _chunks = [];
+    _totalChunkSizes = 0;
+    _readLength = 0;
+    _subscription = _dataSource.getStream().listen((chunk) {
       _chunks.add(chunk);
       _totalChunkSizes += chunk.length;
       if (_totalChunkSizes >= _readLength){
@@ -59,8 +44,6 @@ class CustomDataSource extends InputDataSource {
       _completer.completeError(e);
       _subscription?.cancel();
     });
-
-    int contentLength = int.parse(response.headers.map["content-length"]![0]);
     return contentLength;
   }
 
@@ -97,19 +80,19 @@ class CustomDataSource extends InputDataSource {
     return _readFromChunks(length);
   }
 
-  @override
   Future<Uint8List> read(int readLength) async {
     Completer<Uint8List> completer = Completer<Uint8List>();
     if (_subscription==null){
       completer.completeError(new Exception("Stream is not opened"));
       return completer.future;
     }
+    dev.log("===READ===$readLength", name:"CustomDataSource");
     if (_totalChunkSizes >= readLength){
       Uint8List data = _readFromChunks(readLength);
       completer.complete(data);
     }
     else{
-      Uint8List data = await _readFromStream(readLength);
+      var data = _readFromStream(readLength);
       completer.complete(data);
     }
     return completer.future;
@@ -144,7 +127,7 @@ class NetworkDataSource implements StreamDataSource{
     var response = await _dio!.get(uri, options: Options(
     responseType: ResponseType.stream,
     headers: {
-      "Range": "bytes-$position-${length>0?position+length-1:''}"
+      "Range": "bytes=$position-${length>0?position+length-1:''}"
     }
     ));
     if (response.statusCode! < 200 && response.statusCode!>=300){

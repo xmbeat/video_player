@@ -4,11 +4,8 @@
 
 // ignore_for_file: public_member_api_docs
 
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:video_player_android/video_player_android.dart';
-import 'package:video_player_example/buffered_data_source.dart';
 import 'package:video_player_example/custom_data_source.dart';
 
 import 'mini_controller.dart';
@@ -125,7 +122,7 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
     //   'http://192.168.100.3/evideo.aes',
     //   aesOptions: aesOptions
     // );
-    _controller = MiniController.customDataSource("http://192.168.100.3/video.mp4", CustomDataSource());
+    _controller = MiniController.customDataSource("http://192.168.100.3/video.mp4", NetworkDataSource());
     _controller.addListener(() {
       setState(() {});
     });
