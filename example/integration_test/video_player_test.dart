@@ -16,7 +16,6 @@ import 'package:video_player_android/video_player_android.dart';
 // platform interface. (These tests were copied from the app-facing package
 // during federation and minimally modified, which is why they currently use the
 // controller.)
-import 'package:video_player_example/mini_controller.dart';
 
 const Duration _playDuration = Duration(seconds: 1);
 
@@ -38,12 +37,12 @@ String getUrlForAssetAsNetworkSource(String assetKey) {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  late MiniController controller;
+  late VideoPlayerController controller;
   tearDown(() async => controller.dispose());
 
   group('asset videos', () {
     setUp(() {
-      controller = MiniController.asset(_videoAssetKey);
+      controller = VideoPlayerController.asset(_videoAssetKey);
     });
 
     testWidgets('registers expected implementation',
@@ -105,7 +104,7 @@ void main() {
       final File file = File('$tempDir/$filename');
       await file.writeAsBytes(bytes.buffer.asInt8List());
 
-      controller = MiniController.file(file);
+      controller = VideoPlayerController.file(file);
     });
 
     testWidgets('test video player using static file() method as constructor',
@@ -122,7 +121,7 @@ void main() {
   group('network videos', () {
     setUp(() {
       final String videoUrl = getUrlForAssetAsNetworkSource(_videoAssetKey);
-      controller = MiniController.network(videoUrl);
+      controller = VideoPlayerController.network(videoUrl);
     });
 
     testWidgets('reports buffering status', (WidgetTester tester) async {
@@ -153,7 +152,7 @@ void main() {
     });
 
     testWidgets('live stream duration != 0', (WidgetTester tester) async {
-      final MiniController livestreamController = MiniController.network(
+      final VideoPlayerController livestreamController = VideoPlayerController.network(
         'https://flutter.github.io/assets-for-api-docs/assets/videos/hls/bee.m3u8',
       );
       await livestreamController.initialize();

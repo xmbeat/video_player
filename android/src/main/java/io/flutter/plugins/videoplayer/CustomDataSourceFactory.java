@@ -107,7 +107,9 @@ public class CustomDataSourceFactory implements  DataSource.Factory{
                     factory.sink.success(event);
                 }
             });
-            while(!factory.eventResponses.containsKey(eventName));
+            while(!factory.eventResponses.containsKey(eventName)){
+                Thread.yield();
+            }
             Object rawResponse = factory.eventResponses.remove(eventName);
            
             if (!(rawResponse instanceof Map)){

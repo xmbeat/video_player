@@ -6,9 +6,10 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:video_player_example/custom_data_source.dart';
+import 'package:video_player_android/video_player_android.dart';
+import 'custom_data_source.dart';
 
-import 'mini_controller.dart';
+
 
 void main() {
   runApp(
@@ -55,12 +56,12 @@ class _ButterFlyAssetVideo extends StatefulWidget {
 }
 
 class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
-  late MiniController _controller;
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = MiniController.asset('assets/Butterfly-209.mp4');
+    _controller = VideoPlayerController.asset('assets/Butterfly-209.mp4');
 
     _controller.addListener(() {
       setState(() {});
@@ -93,7 +94,7 @@ class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
                 children: <Widget>[
                   VideoPlayer(_controller),
                   _ControlsOverlay(controller: _controller),
-                  VideoProgressIndicator(_controller),
+                  VideoProgressIndicator(_controller, allowScrubbing: true),
                 ],
               ),
             ),
@@ -110,7 +111,7 @@ class _BumbleBeeRemoteVideo extends StatefulWidget {
 }
 
 class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
-  late MiniController _controller;
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
@@ -122,7 +123,7 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
     //   'http://192.168.100.3/evideo.aes',
     //   aesOptions: aesOptions
     // );
-    _controller = MiniController.customDataSource("http://192.168.100.3/video.mp4", NetworkDataSource());
+    _controller = VideoPlayerController.customDataSource("http://192.168.100.3/video.mp4", NetworkDataSource());
     _controller.addListener(() {
       setState(() {});
     });
@@ -151,7 +152,7 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
                 children: <Widget>[
                   VideoPlayer(_controller),
                   _ControlsOverlay(controller: _controller),
-                  VideoProgressIndicator(_controller),
+                  VideoProgressIndicator(_controller, allowScrubbing: true)
                 ],
               ),
             ),
@@ -176,7 +177,7 @@ class _ControlsOverlay extends StatelessWidget {
     10.0,
   ];
 
-  final MiniController controller;
+  final VideoPlayerController controller;
 
   @override
   Widget build(BuildContext context) {

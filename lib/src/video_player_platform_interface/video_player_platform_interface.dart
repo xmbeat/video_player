@@ -502,12 +502,6 @@ class VideoPlayerWebOptionsControls {
   }
 }
 
-abstract class InputDataSource{
-  Future<int> open(String uri, {int position = 0, int length = -1});
-  Future<Uint8List> read(int readLength);
-  Future<void> close();
-}
-
 abstract class StreamDataSource{
   Future<int> open(String uri, {int position = 0, int length = -1});
   Stream<Uint8List> getStream();
