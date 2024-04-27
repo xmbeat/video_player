@@ -5,6 +5,8 @@
 // ignore_for_file: public_member_api_docs
 
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:video_player_android/video_player_android.dart';
 import 'custom_data_source.dart';
@@ -116,14 +118,18 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
   @override
   void initState() {
     super.initState();
-    // var aesOptions = AesOptions(mode: 'ctr', 
-    //   key: Uint8List.fromList([63, 127, 107, 80, 81, 249, 211, 213, 129, 11, 79, 149, 95, 34, 226, 112]),
-    //   iv: Uint8List.fromList([247, 86, 209, 146, 57, 170, 159, 101, 0, 0, 0, 0, 0, 0, 0, 0]));
-    // _controller = MiniController.network(
-    //   'http://192.168.100.3/evideo.aes',
+    var aesOptions = AesOptions(mode: 'ctr', 
+      key: Uint8List.fromList([63, 127, 107, 80, 81, 249, 211, 213, 129, 11, 79, 149, 95, 34, 226, 112]),
+      iv: Uint8List.fromList([247, 86, 209, 146, 57, 170, 159, 101, 0, 0, 0, 0, 0, 0, 0, 0]));
+
+    // _controller = VideoPlayerController.networkUrl(
+    //   Uri.parse('http://192.168.100.3/video.aes'),
     //   aesOptions: aesOptions
     // );
-    _controller = VideoPlayerController.customDataSource("http://192.168.100.3/video.mp4", NetworkDataSource());
+    _controller = VideoPlayerController.customDataSource(
+      "http://192.168.100.3/video.aes", NetworkDataSource(), 
+      aesOptions: aesOptions  
+    );
     _controller.addListener(() {
       setState(() {});
     });

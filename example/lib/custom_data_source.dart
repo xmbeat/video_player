@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:video_player_android/video_player_android.dart';
-
+import 'dart:developer' as dev;
 class NetworkDataSource implements StreamDataSource{
   Dio? _dio;
   Stream<Uint8List>? _stream;
@@ -19,9 +19,13 @@ class NetworkDataSource implements StreamDataSource{
     if (_stream == null){
       throw Exception("Stream was not opened before");
     }
+    var offset = 0;
     await for(var chunk in _stream!){
+      // dev.log("Read bytes ${chunk.length} offset $offset", name: "NetworkDataSource");
+      offset += chunk.length;
       yield chunk;
     }
+    // dev.log("EOF STREAM", name: "NetworkDataSource");
   }
 
   @override
@@ -38,6 +42,7 @@ class NetworkDataSource implements StreamDataSource{
     }
     _stream = response.data.stream;
     int contentLength = int.parse(response.headers.map["content-length"]![0]);
+    // dev.log("Opening from: $position to $length, length: $contentLength", name: "NetworkDataSource");
     return contentLength;
   }
   

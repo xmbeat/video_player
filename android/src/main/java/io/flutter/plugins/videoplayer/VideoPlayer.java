@@ -9,6 +9,7 @@ import static com.google.android.exoplayer2.Player.REPEAT_MODE_OFF;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -88,28 +89,26 @@ final class VideoPlayer {
     Uri uri = Uri.parse(dataSource);
     MediaSource mediaSource = null;
     QueuingEventSink sink = new QueuingEventSink();
+
+    DataSource.Factory dataSourceFactory;
+    Log.d("VIDEOPLAYER", dataSource );
+    Log.d("VIDEOPLAYER", aesOptions == null?"AES NULL":"AES NOT NULL");
     if (isCustom){
-      DataSource.Factory customDataSourceFactory = new CustomDataSourceFactory(sink, eventResponses);
-      mediaSource = new ProgressiveMediaSource.Factory(customDataSourceFactory).createMediaSource(
-        MediaItem.fromUri(dataSource)
-      );
-    }
-    else if (aesOptions!=null){
-      DataSource.Factory encryptedDataSourceFactory = new EncryptedDataSourceFactory(
-        aesOptions.getKey(), 
-        aesOptions.getIv()
-      );
-      mediaSource = new ProgressiveMediaSource.Factory(encryptedDataSourceFactory).createMediaSource(
-        MediaItem.fromUri(dataSource)
-      );
+      dataSourceFactory = new CustomDataSourceFactory(sink, eventResponses);
     }
     else{
       buildHttpDataSourceFactory(httpHeaders);
-      DataSource.Factory dataSourceFactory =
-          new DefaultDataSource.Factory(context, httpDataSourceFactory);
-      
-      mediaSource = buildMediaSource(uri, dataSourceFactory, formatHint);
+      dataSourceFactory = new DefaultDataSource.Factory(context, httpDataSourceFactory);
     }
+
+    if (aesOptions != null){
+      dataSourceFactory = new AesDataSourceFactory(
+        aesOptions.getKey(), 
+        aesOptions.getIv(), 
+        dataSourceFactory.createDataSource());
+    }
+
+    mediaSource = buildMediaSource(uri, dataSourceFactory, formatHint);
 
     exoPlayer.setMediaSource(mediaSource);
     exoPlayer.prepare();

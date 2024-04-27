@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -437,6 +436,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
           sourceType: DataSourceType.asset,
           asset: dataSource,
           package: package,
+          aesOptions: aesOptions
         );
       case DataSourceType.network:
         dataSourceDescription = DataSource(
@@ -444,22 +444,26 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
           uri: dataSource,
           formatHint: formatHint,
           httpHeaders: httpHeaders,
+          aesOptions: aesOptions
         );
       case DataSourceType.file:
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.file,
           uri: dataSource,
           httpHeaders: httpHeaders,
+          aesOptions: aesOptions
         );
       case DataSourceType.contentUri:
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.contentUri,
           uri: dataSource,
+          aesOptions: aesOptions
         );
       case DataSourceType.custom:
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.custom,
-          uri: dataSource
+          uri: dataSource,
+          aesOptions: aesOptions
         );
     }
 
@@ -1241,6 +1245,7 @@ class StreamHandler{
   Completer<void> _completer = Completer();
   late StreamDataSource _dataSource;
 
+  late int total;
   StreamHandler(this._dataSource);
   
   Future<void> close() async {
@@ -1265,11 +1270,15 @@ class StreamHandler{
       } 
     }, onDone: () {
       _subscription?.cancel();
+      _subscription = null;
       _completer.complete();
     }, onError: (e){
-      _completer.completeError(e);
       _subscription?.cancel();
+      _subscription = null;
+      _completer.completeError(e);
+
     });
+    total = contentLength;
     return contentLength;
   }
 
@@ -1320,7 +1329,8 @@ class StreamHandler{
       var data = _readFromStream(readLength);
       completer.complete(data);
     }
-    return completer.future;
+    Uint8List data = await completer.future;
+    return data;
   }
 
 }
