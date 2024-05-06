@@ -3,8 +3,10 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1321,6 +1323,7 @@ class StreamHandler{
       completer.completeError(new Exception("Stream is not opened"));
       return completer.future;
     }
+    log("Reading: $readLength", name: "StreamHandler");
     if (_totalChunkSizes >= readLength){
       Uint8List data = _readFromChunks(readLength);
       completer.complete(data);
@@ -1330,6 +1333,7 @@ class StreamHandler{
       completer.complete(data);
     }
     Uint8List data = await completer.future;
+    log("Read: ${data.length}", name: "StreamHandler");
     return data;
   }
 

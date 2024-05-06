@@ -9,6 +9,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:video_player_android/video_player_android.dart';
+import 'package:video_player_example/aes_data_source.dart';
 import 'custom_data_source.dart';
 
 
@@ -121,14 +122,12 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
     var aesOptions = AesOptions(mode: 'ctr', 
       key: Uint8List.fromList([63, 127, 107, 80, 81, 249, 211, 213, 129, 11, 79, 149, 95, 34, 226, 112]),
       iv: Uint8List.fromList([247, 86, 209, 146, 57, 170, 159, 101, 0, 0, 0, 0, 0, 0, 0, 0]));
-
     // _controller = VideoPlayerController.networkUrl(
     //   Uri.parse('http://192.168.100.3/video.aes'),
     //   aesOptions: aesOptions
     // );
     _controller = VideoPlayerController.customDataSource(
-      "http://192.168.100.3/video.aes", NetworkDataSource(), 
-      aesOptions: aesOptions  
+      "http://192.168.100.3/video.aes", AesDataSource(aesOptions.key, aesOptions.iv!), 
     );
     _controller.addListener(() {
       setState(() {});

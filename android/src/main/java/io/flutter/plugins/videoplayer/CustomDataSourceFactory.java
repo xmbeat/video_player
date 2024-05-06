@@ -36,7 +36,6 @@ public class CustomDataSourceFactory implements  DataSource.Factory{
 
     private static class CustomDataSource implements DataSource {
         CustomDataSourceFactory factory;
-        private static final String TAG = "CustomDataSource";
         private TransferListener listener;
         private DataSpec dataSpec;
 
