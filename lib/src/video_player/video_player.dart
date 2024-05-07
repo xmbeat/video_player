@@ -1323,7 +1323,7 @@ class StreamHandler{
       completer.completeError(new Exception("Stream is not opened"));
       return completer.future;
     }
-    log("Reading: $readLength", name: "StreamHandler");
+    // log("Reading: $readLength", name: "StreamHandler");
     if (_totalChunkSizes >= readLength){
       Uint8List data = _readFromChunks(readLength);
       completer.complete(data);
@@ -1333,7 +1333,7 @@ class StreamHandler{
       completer.complete(data);
     }
     Uint8List data = await completer.future;
-    log("Read: ${data.length}", name: "StreamHandler");
+    // log("Read: ${data.length}", name: "StreamHandler");
     return data;
   }
 
